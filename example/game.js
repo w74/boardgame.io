@@ -43,11 +43,12 @@ const TicTacToe = Game({
 
   moves: {
     clickCell(G, ctx, id) {
-      const cells = [...G.cells];
-
-      if (cells[id] === null) {
-        cells[id] = ctx.currentPlayer;
+      if (G.cells[id] !== null) {
+        return;
       }
+
+      const cells = [...G.cells];
+      cells[id] = ctx.currentPlayer;
 
       let winner = null;
       if (IsVictory(cells)) {

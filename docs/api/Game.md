@@ -38,7 +38,9 @@ have `action.type` contain the name of the move, and
   - `G` (*object*): The initial value of G.
   - `moves` (*object*): The keys are move names, and the values
     are pure functions that return the new value of `G` once
-    the move has been processed.
+    the move has been processed. The functions must return
+    nothing (or `undefined`) if the move is invalid for a given
+    set of inputs.
 
 ### Returns
 
@@ -52,36 +54,18 @@ have `action.type` contain the name of the move, and
 ```js
 import Game from 'boardgame.io/game';
 
-var game = Game({
-  G: {},
-  
-  moves: {
-    'moveWithoutArgs': function(G, ctx) {
-      return Object.assign({}, G, ...);
-    },
-
-    'moveWithArgs': function(G, ctx, arg0, arg1) {
-      return Object.assign({}, G, ...);
-    }
-  }
-});
-```
-
-ES2015 version
-
-```js
-import Game from 'boardgame.io/game';
-
 const game = Game({
   G: {},
   
   moves: {
     moveWithoutArgs(G, ctx) {
+      if (!isValid(G, ctx) return;
       return {...G, ...};
     },
 
     moveWithArgs(G, ctx, arg0, arg1) {
-      return {...G, ...}
+      if (!isValid(G, ctx, arg0, arg1)) return;
+      return {...G, ...};
     }
   }
 });

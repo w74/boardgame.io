@@ -15,7 +15,8 @@ const game = Game({
   moves: {
     'A': G => G,
     'B': () => ({ moved: true }),
-    'C': (G, ctx, a, b) => ({ a, b })
+    'C': (G, ctx, a, b) => ({ a, b }),
+    'D': () => undefined
   }
 });
 
@@ -56,7 +57,7 @@ test('move dispatchers', () => {
   const store = createStore(reducer);
   const api = createDispatchers(game.moveNames, store);
 
-  expect(Object.getOwnPropertyNames(api)).toEqual(['A', 'B', 'C']);
+  expect(Object.getOwnPropertyNames(api)).toEqual(['A', 'B', 'C', 'D']);
   expect(api.unknown).toBe(undefined);
 
   api.A();
@@ -97,4 +98,11 @@ test('log', () => {
   expect(state.log).toEqual([actionA, actionB]);
   state = reducer(state, actionC);
   expect(state.log).toEqual([actionA, actionB, actionC]);
+});
+
+test('move that does not return', () => {
+  const reducer = createGameReducer({game});
+  const G = { test: true };
+  const state = reducer({ G, log: [] }, makeMove({ type : 'D' }));
+  expect(state.G).toEqual(G);
 });

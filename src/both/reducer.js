@@ -43,8 +43,16 @@ function createGameReducer({game, numPlayers}) {
   return (state = initial, action) => {
     switch (action.type) {
       case Actions.MAKE_MOVE: {
-        const G = game.reducer(state.G, action.move, state.ctx);
+        let G = game.reducer(state.G, action.move, state.ctx);
+
+        // Invalid move, nothing returned.
+        if (G == undefined) {
+          G = state.G;
+        }
+
+        // Update log.
         const log = [...state.log, action];
+
         return {...state, G, _id: state._id + 1, log};
       }
 

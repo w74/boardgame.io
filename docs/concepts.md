@@ -35,25 +35,20 @@ when a particular game move is made.
 ```js
 Moves({
   'moveA': function(G, ctx) {
-    // Clone G.
-    const Gcopy = Object.assign({}, G);
+    // If the move is invalid, return nothing.
+    if (!isValid(G, 'moveA')) {
+      return;
+    }
 
-    // mutate Gcopy in response to move.
-    // ...
-
-    // Return copy of G.
+    // If the move is valid, return the new version of G
+    // after playing the move.
+    let Gcopy = {...G};
+    ...
     return Gcopy;
   },
 
   'moveB': function(G, ctx) {
-    // Clone G.
-    const Gcopy = Object.assign({}, G);
-
-    // mutate Gcopy in response to move.
-    // ...
-
-    // Return copy of G.
-    return Gcopy;
+    ...
   },
 
   ...

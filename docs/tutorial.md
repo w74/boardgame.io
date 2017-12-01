@@ -99,12 +99,15 @@ const TicTacToe = Game({
 
   moves: {
     clickCell(G, ctx, id) {
+      // Ensure that we don't overwrite cells.
+      if (G.cells[id] !== null) {
+        return;
+      }
+
       const cells = [...G.cells];
 
-      // Ensure we can overwrite cells.
-      if (cells[id] === null) {
-        cells[id] = ctx.currentPlayer;
-      }
+      // Update cell.
+      cells[id] = ctx.currentPlayer;
 
       // Set winner to true if the current
       // player just won.
