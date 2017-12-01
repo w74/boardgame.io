@@ -45,9 +45,9 @@ function createGameReducer({game, numPlayers}) {
       case Actions.MAKE_MOVE: {
         let G = game.reducer(state.G, action.move, state.ctx);
 
-        // Invalid move, nothing returned.
+        // Invalid move.
         if (G == undefined) {
-          G = state.G;
+          return state;
         }
 
         // Update log.
