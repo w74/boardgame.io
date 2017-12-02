@@ -35,14 +35,14 @@ when a particular game move is made.
 ```js
 Moves({
   'moveA': function(G, ctx) {
-    // If the move is invalid, return nothing.
-    if (!isValid(G, 'moveA')) {
+    // If the move is invalid or not allowed at this point,
+    // then return nothing.
+    if (!isValid(...)) {
       return;
     }
 
-    // If the move is valid, return the new version of G
-    // after playing the move.
-    let Gcopy = {...G};
+    // Return the new version of G after playing the move.
+    let Gcopy = Object.assign({}, G);
     ...
     return Gcopy;
   },
