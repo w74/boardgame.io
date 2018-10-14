@@ -50,8 +50,8 @@ function IsVictory(cells) {
 }
 
 const TicTacToe = BoardgameIO.Game({
-  G: { cells: Array(9).fill(null), winner: null },
-  
+  setup: () => ({ cells: Array(9).fill(null) }),
+
   moves: {
     clickCell(G, ctx, id) {
       const cells = [...G.cells];
@@ -60,12 +60,18 @@ const TicTacToe = BoardgameIO.Game({
         cells[id] = ctx.currentPlayer;
       }
 
-      let winner = null;
-      if (IsVictory(cells)) {
-        winner = ctx.currentPlayer;
-      }
+      return { ...G, cells };
+    }
+  },
 
-      return { ...G, cells, winner };
+  flow: {
+    endGameIf: (G, ctx) => {
+      if (IsVictory(G.cells)) {
+        return { winner: ctx.currentPlayer };
+      }
+      if (G.cells.filter(c => c === null).length == 0) {
+        return { draw: true };
+      }
     }
   }
 });
@@ -75,20 +81,20 @@ class TicTacToeBoard extends React.Component {
   onClick(id) {
     if (this.isActive(id)) {
       this.props.moves.clickCell(id);
-      this.props.endTurn();
+      this.props.events.endTurn();
     }
   }
 
   isActive(id) {
-    if (this.props.G.winner !== null) return false;
-    if (this.props.G.cells[id] !== null) return false;
-    return true;
+    return this.props.isActive && this.props.G.cells[id] == null;
   }
 
   render() {
     let winner = '';
-    if (this.props.G.winner !== null) {
-      winner = <div>Winner: {this.props.G.winner}</div>;
+    if (this.props.ctx.gameover) {
+      winner = this.props.ctx.gameover.winner !== undefined ?
+          <div id="winner">Winner: {this.props.ctx.gameover.winner}</div> :
+          <div id="winner">Draw!</div>;
     }
 
     const cellStyle = {
@@ -130,9 +136,10 @@ class TicTacToeBoard extends React.Component {
   }
 }
 
-var App = BoardgameIO.Client({
+var App = BoardgameIO.ReactClient({
   board: TicTacToeBoard,
   game: TicTacToe,
+  debug: { showGameInfo: false }
 });
 
 
@@ -142,7 +149,7 @@ ReactDOM.render(<App/>, document.getElementById('app'));
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <script src="//unpkg.com/react@next/umd/react.development.js"></script>
   <script src="//unpkg.com/react-dom@next/umd/react-dom.development.js"></script>
-  <script src="//unpkg.com/boardgame.io"></script>
+  <script src="boardgameio.min.js"></script>
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google Inc.
+ * Copyright 2017 The boardgame.io Authors
  *
  * Use of this source code is governed by a MIT-style
  * license that can be found in the LICENSE file or at
@@ -7,18 +7,77 @@
  */
 
 .debug-ui {
-  float: right;
-  min-width: 300px;
-  box-sizing: border-box;
+  text-align: left;
+  overflow-x: hidden;
+  overflow-y: scroll;
   background: #fefefe;
-  border: 3px solid #ddd;
+  border-left: 1px solid #ddd;
+  box-shadow: -1px 0 10px #aaa;
+  position: absolute;
+  width: 300px;
   right: 0;
   top: 0;
   height: 100%;
-  opacity: .5;
   font-family: monospace;
   font-size: 14px;
+}
+
+#debug-controls.docktop {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  min-width: 500px;
+  top: 0;
+  right: 300px;
+  height: 50px;
+  background: #fff;
+  box-shadow: -3px 3px 3px #ccc;
+}
+
+@media only screen and (max-device-width: 750px) {
+  .debug-ui {
+    display: none;
+  }
+}
+
+.debug-ui .gameinfo {
+  background: #ddd;
+  position: fixed;
+  bottom: 0;
+  box-sizing: border-box;
+  width: 285px;
+  margin-left: -20px;
+  margin-bottom: 0;
+  padding: 10px;
+}
+
+.debug-ui .gameinfo-item div {
+  float: right;
+  text-align: right;
+}
+
+.debug-ui .ai-visualization {
+  position: fixed;
+  opacity: 100%;
+  right: 300px;
+  height: 100%;
+  width: 100%;
+  max-width: 3000px;
+  background: #fafafa;
+  border-right: 1px solid #ddd;
+}
+
+.debug-ui .pane {
+  float: left;
   padding: 20px;
+  box-sizing: border-box;
+  min-width: 300px;
+  max-width: 400px;
+  opacity: 0.8;
 }
 
 .debug-ui section {
@@ -41,6 +100,11 @@
 
 .debug-ui .move.active {
   color: #111;
+  font-weight: bold;
+}
+
+.debug-ui .move-error {
+  color: #a00;
   font-weight: bold;
 }
 
@@ -112,15 +176,21 @@
 
 .debug-ui .player {
   cursor: pointer;
-  padding: 5px;
   text-align: center;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  border: 3px solid #eee;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  background: #eee;
+  border: 3px solid #fff;
+  box-sizing: content-box;
+}
+
+.debug-ui .player.current {
+  background: #555;
+  color: #eee;
+  font-weight: bold;
 }
 
 .debug-ui .player.active {
-  background: #ccc;
-  border: 3px solid #555;
+  border: 3px solid #ff7f50;
 }

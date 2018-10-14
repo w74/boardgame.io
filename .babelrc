@@ -2,7 +2,6 @@
   "presets": [
     ["es2015", { "modules": false }],
     "react",
-    "stage-0"
   ],
   "env": {
     "targets": {
@@ -14,5 +13,14 @@
     "rollup": {
       "plugins": ["external-helpers"]
     }
-  }
+  },
+  "plugins": [
+    ["module-resolver", {
+      "alias": {
+        "boardgame.io": "./packages",
+      }
+    }],
+    "transform-object-rest-spread",
+    "transform-class-properties"
+  ]
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google Inc.
+ * Copyright 2017 The boardgame.io Authors
  *
  * Use of this source code is governed by a MIT-style
  * license that can be found in the LICENSE file or at
@@ -7,69 +7,43 @@
  */
 
 const Koa = require('koa');
-const IO = require('koa-socket');
-const Redux = require('redux');
-import { InMemory } from './db';
-import { createGameReducer } from '../both/reducer';
 
-function Server({game, numPlayers}) {
+import { DBFromEnv } from './db';
+import { createApiServer } from './api';
+import * as logger from '../core/logger';
+import { SocketIO } from './transport/socketio';
+
+/**
+ * Instantiate a game server.
+ *
+ * @param {Array} games - The games that this server will handle.
+ * @param {object} db - The interface with the database.
+ * @param {object} transport - The interface with the clients.
+ */
+export function Server({ games, db, transport }) {
   const app = new Koa();
-  const io = new IO();
 
-  app.context.io = io;
-  io.attach(app);
+  if (db === undefined) {
+    db = DBFromEnv();
+  }
+  app.context.db = db;
 
-  const reducer = createGameReducer({game, numPlayers});
-  const db = new InMemory(reducer);
+  if (transport === undefined) {
+    transport = SocketIO();
+  }
+  transport.init(app, games);
 
-  io.on('connection', (ctx) => {
-    const socket = ctx.socket;
+  const api = createApiServer({ db, games });
 
-    socket.on('action', action => {
-      const gameid = action._gameid;
-      const store = db.get(gameid);
-
-      if (store === undefined) {
-        return { error: 'game not found' };
-      }
-
-      const state = store.getState();
-
-      // Bail out if the player making the move is not
-      // the current player. The null player is always
-      // allowed.
-      if (action._player != null &&
-          action._player != state.ctx.currentPlayer) {
-        return;
-      }
-
-      if (state._id == action._id) {
-        store.dispatch(action);
-        const state = store.getState();
-        socket.broadcast.emit('sync', {
-          ...state,
-          G: game.playerView(state.G, state.ctx)
-        });
-        db.set(gameid, store);
-      }
-    });
-
-    socket.on('sync', gameid => {
-      let store = db.get(gameid);
-      if (store === undefined) {
-        store = Redux.createStore(reducer);
-        db.set(gameid, store);
-      }
-
-      const state = store.getState();
-      socket.emit('sync', {
-        ...state,
-        G: game.playerView(state.G, state.ctx)
-      });
-    });
-  });
-
-  return app;
+  return {
+    app,
+    api,
+    db,
+    run: async (port, callback) => {
+      await db.connect();
+      await api.listen(port + 1);
+      await app.listen(port, callback);
+      logger.info('listening...');
+    },
+  };
 }
-
-export default Server;

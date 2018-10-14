@@ -1,92 +1,64 @@
 # Game
 
-```js
-Game({
-  // Initial value of G.
-  G: {},
-
-  // Game moves.
-  moves: {
-    'moveName': moveFn,
-    ...
-  },
-
-  // Customized view.
-  playerView: (G, ctx) => {
-    return G;
-  }
-}
-```
-
 Creates a new game implementation described by the initial
-game state and the moves.
-
-The moves are converted to a [Redux](http://redux.js.org/docs/basics/Reducers.html) reducer to maintain `G`. The reducer has the following signature:
-
-```js
-function(G, action, ctx) {
-}
-```
-
-You can roll your own if you like, or use any Redux
-addon to generate such a reducer.
-
-The convention used in this framework is to
-have `action.type` contain the name of the move, and
-`action.args` contain any additional arguments as an
-`Array`.
+game state and the moves. The moves are converted to a
+[Redux](http://redux.js.org/docs/basics/Reducers.html) reducer to maintain `G`.
 
 ### Arguments
 
-1. `obj` (*object*): An object that contains
+1. `obj` (_object_): An object that contains
 
-  - `G` (*object*): The initial value of G.
-  - `moves` (*object*): The keys are move names, and the values
+  * `name` (_string_): The name of the game.
+  * `setup` (_object_): Function that returns the initial value of G.
+  * `moves` (_object_): The keys are move names, and the values
     are pure functions that return the new value of `G` once
     the move has been processed.
-  - `playerView` (*function*): Returns a version of `G` that
-    is customized for the current player. See the document on
-    [Secret State](/secret-state) for more information.
+  * `playerView` (_function_): Returns a version of `G` that
+    is customized for a given player. See [Secret State](/secret-state) for more information.
+  * `seed` (_string_): Seed for the PRNG.
+  * `flow` (_object_): Arguments to customize the flow of the game. See
+    [Phases](/phases) for more information.
+  * `flow.endGameIf` (_function_): _(G, ctx) => {}_
+    The game automatically ends if this function returns anything (checked after each move).
+    The return value is available at `ctx.gameover`.
+  * `flow.endTurnIf` (_function_): _(G, ctx) => boolean_
+    The turn automatically ends if this function returns true (checked after each move).
+  * `flow.onTurnBegin` (_function_): _(G, ctx) => G_
+    Code to run at the start of a turn.
+  * `flow.onTurnEnd` (_function_): _(G, ctx) => G_
+    Code to run at the end of a turn.
+  * `flow.onMove` (_function_): _(G, ctx, { type: 'moveName', args: [] }) => G_
+    Code to run at the end of a move.
+  * `flow.movesPerTurn` (_number_): Ends the turn automatically if a certain number
+    of moves have been made.
+  * `flow.undoableMoves` (_array_): Enables undo and redo of listed moves.
+  Leave `undefined` if all moves should be undoable.
+  * `flow.phases` (_array_): Optional list of game phases. See
+    [Phases](/phases) for more information.
 
 ### Returns
 
 (`game`): An object that contains
-1. `G`: The initial value of G.
+
+1. `setup`: The same `setup` from the input object.
 2. `moveNames`: The names of the moves of the game.
-3. `reducer`: The reducer to maintain `G`.
+3. `processMove`: The reducer to maintain `G`.
+4. `playerView`: The passed in `playerView` function.
+5. `flow`: An object derived from `obj.flow` containing a reducer to maintain `ctx`.
 
 ### Usage
 
-```js
-import Game from 'boardgame.io/game';
-
-var game = Game({
-  G: {},
-  
-  moves: {
-    'moveWithoutArgs': function(G, ctx) {
-      return Object.assign({}, G, ...);
-    },
-
-    'moveWithArgs': function(G, ctx, arg0, arg1) {
-      return Object.assign({}, G, ...);
-    }
-  },
-
-  playerView: function(G, ctx) {
-    return SecretsRemoved(G, ctx.currentPlayer);
-  }
-});
-```
-
-ES2015 version
+#### Simple Game
 
 ```js
-import Game from 'boardgame.io/game';
+import { Game } from 'boardgame.io/core';
 
 const game = Game({
-  G: {},
-  
+  setup: (ctx) => {
+    const G = {...};
+    return G;
+  },
+
   moves: {
     moveWithoutArgs(G, ctx) {
       return {...G, ...};
@@ -95,10 +67,73 @@ const game = Game({
     moveWithArgs(G, ctx, arg0, arg1) {
       return {...G, ...}
     }
+  }
+});
+```
+
+#### With Victory Condition
+
+```js
+import { Game } from 'boardgame.io/core';
+
+const game = Game({
+  setup: (ctx) => {
+    ...
   },
 
-  playerView: (G, ctx) => {
-    return SecretsRemoved(G, ctx.currentPlayer);
+  moves: {
+    ...
+  },
+
+  flow: {
+    endGameIf: (G, ctx) => {
+      if (IsWinner(G, ctx.currentPlayer)) {
+        return ctx.currentPlayer;
+      }
+    },
+  }
+});
+```
+
+#### With Phases
+
+```js
+import { Game } from 'boardgame.io/core';
+
+const game = Game({
+  setup: (ctx) => {
+    ...
+  },
+
+  moves: {
+    ...
+  },
+
+  flow: {
+    phases: [
+      {
+        name: 'A',
+        endGameIf: ...
+        endTurnIf: ...
+        onTurnBegin: ...
+        onTurnEnd: ...
+        onPhaseBegin: ...
+        onPhaseEnd: ...
+        allowedMoves: ...
+        ...
+      },
+      {
+        name: 'B',
+        endGameIf: ...
+        endTurnIf: ...
+        onTurnBegin: ...
+        onTurnEnd: ...
+        onPhaseBegin: ...
+        onPhaseEnd: ...
+        allowedMoves: ...
+        ...
+      },
+    ]
   }
 });
 ```

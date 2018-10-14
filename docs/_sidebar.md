@@ -1,16 +1,28 @@
-- Getting Started
-  - [Overview](/)
-  - [Concepts](concepts.md)
-  - [Tutorial](tutorial.md)
+* Getting Started
 
-- Advanced
-  - [Multiplayer](multiplayer.md)
-  - [Secret State](secret-state.md)
+  * [Overview](/)
+  * [Concepts](concepts.md)
+  * [Tutorial](tutorial.md)
 
-- API Reference
-  - [Game](api/Game.md)
-  - [Client](api/Client.md)
-  - [Server](api/Server.md)
+* Guides
 
-- Component Library
-  - [Showcase](storybook.md)
+  * [Multiplayer](multiplayer.md)
+  * [Phases](phases.md)
+  * [Turn Orders](turn-order.md)
+  * [Events](events.md)
+  * [Undo / Redo](undo.md)
+  * [Randomness](random.md)
+  * [Secret State](secret-state.md)
+  * [Immutability](immutability.md)
+  * [Debugging](debugging.md)
+  * [Testing](testing.md)
+
+* API Reference
+
+  * [Game](api/Game.md)
+  * [Client](api/Client.md)
+  * [Server](api/Server.md)
+  * [Random](api/Random.md)
+
+* Component Library
+  * [Showcase](storybook.md)
